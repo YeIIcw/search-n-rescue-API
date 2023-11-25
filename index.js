@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const { MongoClient } = require('mongodb');
 const cors = require("cors");
+const axios = require("axios");
 require("dotenv").config();
 
 const app = express();
@@ -12,6 +13,13 @@ app.use(cors());
 
 const uri = "mongodb+srv://wangadam019:123@cluster0.csarsun.mongodb.net/?retryWrites=true&w=majority"; // Replace with your MongoDB URI
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
+const sendSms = require('./send.js');    
+    const config = {  
+           domain: '6gy1qe.api.infobip.com', 
+            apiKey: 'fec1274dfc9bfa8da89a148fd5d4ead3-97afe641-bf55-43fe-a5b7-742438482619'
+    };
+
 
 app.post("/", async (req, res) => {
   try {
@@ -27,8 +35,13 @@ app.post("/", async (req, res) => {
     // Insert the data into the collection
     await collection.insertOne(postData);
 
+    // Send an SMS message using Infobip
+    const smsMessage = `Require for AID - Class: ${postData.className}, Time: ${postData.time}%, Location: ${postData.location}`;
+    await sendSms(config,'+16473332027', smsMessage).then(result => console.log(result));
+
+
     // Send a response back to the client
-    res.send("POST request received and data inserted successfully");
+    res.send("POST request received, data inserted, and SMS sent successfully");
   } catch (error) {
     console.error('Error handling POST request:', error);
     res.status(500).send('Internal Server Error');
@@ -60,6 +73,7 @@ app.get("/data", async (req, res) => {
     await client.close();
   }
 });
+
 
 const server = app.listen(port, () => {
   console.log(`Server is running on ${port}`);
