@@ -16,7 +16,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 const sendSms = require('./send.js');    
     const config = {  
-           domain: '6gy1qe.api.infobip.com', 
+            domain: '6gy1qe.api.infobip.com', 
             apiKey: 'fec1274dfc9bfa8da89a148fd5d4ead3-97afe641-bf55-43fe-a5b7-742438482619'
     };
 
@@ -36,7 +36,7 @@ app.post("/", async (req, res) => {
     await collection.insertOne(postData);
 
     // Send an SMS message using Infobip
-    const smsMessage = `Require for AID - Class: ${postData.className}, Time: ${postData.time}%, Location: ${postData.location}`;
+    const smsMessage = `🚑Request for AID!\n Class: ${postData.className}\n🕛Time: ${postData.time}\n🌎Location: ${postData.location.lat},${postData.location.long}`;
     await sendSms(config,'+16473332027', smsMessage).then(result => console.log(result));
 
 
