@@ -36,7 +36,7 @@ app.post("/", async (req, res) => {
     await collection.insertOne(postData);
 
     // Send an SMS message using Infobip
-    const smsMessage = `🚑Request for AID!\n Class: ${postData.className}\n🕛Time: ${postData.time}\n🌎Location: ${postData.location.lat},${postData.location.long}`;
+    const smsMessage = `🚑Request for AID!\nDetected: ${postData.className}\n🕛Time: ${postData.time}\n🌎Location: ${postData.location.lat},${postData.location.long}`;
     await sendSms(config,'+16473332027', smsMessage).then(result => console.log(result));
 
 
