@@ -7,6 +7,10 @@ require("dotenv").config();
 const session = require("express-session");
 const { Configuration, OpenAIApi } = require("openai");
 const twilio = require("twilio");
+const fs = require('fs'); 
+const Replicate = require("replicate");
+require("dotenv").config();
+
 
 const app = express();
 const port = 3001;
@@ -23,7 +27,7 @@ app.use(
   })
 );
 
-const uri = "mongodb+srv://wangadam019:123@cluster0.csarsun.mongodb.net/?retryWrites=true&w=majority"; // Replace with your MongoDB URI
+const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const server = app.listen(port, () => {
@@ -47,8 +51,8 @@ const server = app.listen(port, () => {
 
 const sendSms = require('./send.js');    
     const config = {  
-            domain: '6gy1qe.api.infobip.com', 
-            apiKey: 'fec1274dfc9bfa8da89a148fd5d4ead3-97afe641-bf55-43fe-a5b7-742438482619'
+            domain: process.env.INFOBIP_DOMAIN, 
+            apiKey: process.env.INFOBIP_API_KEY
     };
 
 
@@ -68,8 +72,7 @@ app.post("/", async (req, res) => {
 
     // Send an SMS message using Infobip
     const smsMessage = `🚑Request for AID!\nDetected: ${postData.className}\n🕛Time: ${postData.time}\n🌎Location: ${postData.location.lat},${postData.location.long}`;
-    await sendSms(config,'+16473332027', smsMessage).then(result => console.log(result));
-
+    await sendSms(config,process.env.TWILIO_PHONE_NUMBER, smsMessage).then(result => console.log(result));
 
     // Send a response back to the client
     res.send("POST request received, data inserted, and SMS sent successfully");
@@ -107,7 +110,7 @@ app.get("/data", async (req, res) => {
 
 // configuring open ai
 const configuration = new Configuration({
-    apiKey: "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",
+    apiKey: process.env.OPENAI_API_KEY,
 });
   
   
@@ -178,6 +181,29 @@ const configuration = new Configuration({
       number = req.session.number;
       console.log("post hangup 2");
   
+        // // Connect to MongoDB
+        // await client.connect();
+
+        // const database = client.db('calls'); // Replace with your database name
+        // const collection = database.collection('conversation'); // Replace with your collection name
+
+        // // Insert the data into the collection
+        // await collection.insertOne(postData);
+
+        // // Create an object with properties from req.stuff
+        // const dbObject = {
+        //     emergency,
+        //     callerName,
+        //     location,
+        //     number,
+        //     convo,
+        //     // Add more properties as needed
+        // };
+
+        // // Insert the data into the collection
+        // await collection.insertOne(dbObject);
+        // console.log("convo inserted")
+
       req.session.emergency = null;
       req.session.name = null;
       req.session.location = null;
@@ -356,4 +382,3 @@ async function generateAIResponse(req) {
     }
 }
 
-  
